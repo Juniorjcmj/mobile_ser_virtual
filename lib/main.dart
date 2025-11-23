@@ -75,10 +75,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2));
+    // Pequeno delay para exibir a splash screen
+    await Future.delayed(const Duration(seconds: 1));
 
     // Inicializar AuthController
     final authController = Get.put(AuthController());
+
+    // Aguardar verificação de autenticação
+    await authController.checkAuthentication();
 
     // Verificar autenticação
     if (authController.isAuthenticated.value) {

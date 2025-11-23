@@ -40,202 +40,206 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header com avatar
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF6366F1), Color(0xFF10B981)],
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 32),
+            child: Column(
+              children: [
+                // Header com avatar
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF6366F1), Color(0xFF10B981)],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 40.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.white, width: 4),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Color(0xFF6366F1),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          controller.currentUser.value?.nome ?? 'Usuário',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          controller.currentUser.value?.email ?? '',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+
+                // Informações do perfil
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: Colors.white, width: 4),
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Color(0xFF6366F1),
+                      const Text(
+                        'Informações Pessoais',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        controller.currentUser.value?.nome ?? 'Usuário',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+
+                      // Card de informações
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildProfileField(
+                                icon: Icons.person_outline,
+                                label: 'Nome',
+                                controller: controller.nomeController,
+                                enabled: controller.isEditing.value,
+                              ),
+                              const Divider(),
+                              _buildProfileField(
+                                icon: Icons.email_outlined,
+                                label: 'Email',
+                                value:
+                                    controller.currentUser.value?.email ?? '',
+                                enabled: false,
+                              ),
+                              const Divider(),
+                              _buildProfileField(
+                                icon: Icons.phone_outlined,
+                                label: 'Telefone',
+                                controller: controller.telefoneController,
+                                enabled: controller.isEditing.value,
+                              ),
+                              const Divider(),
+                              _buildProfileField(
+                                icon: Icons.credit_card,
+                                label: 'CPF',
+                                controller: controller.cpfController,
+                                enabled: controller.isEditing.value,
+                              ),
+                              const Divider(),
+                              _buildProfileField(
+                                icon: Icons.badge,
+                                label: 'ID',
+                                value:
+                                    controller.currentUser.value?.id
+                                        ?.toString() ??
+                                    'N/A',
+                                enabled: false,
+                              ),
+                              const Divider(),
+                              _buildProfileField(
+                                icon: Icons.admin_panel_settings,
+                                label: 'Função',
+                                value:
+                                    controller.currentUser.value?.role ??
+                                    'Usuário',
+                                enabled: false,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        controller.currentUser.value?.email ?? '',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+
+                      const SizedBox(height: 24),
+
+                      // Seção de segurança
+                      const Text(
+                        'Segurança',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(
+                                Icons.lock_outline,
+                                color: Color(0xFF6366F1),
+                              ),
+                              title: const Text('Alterar Senha'),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () {
+                                Get.snackbar(
+                                  'Em Desenvolvimento',
+                                  'Funcionalidade em desenvolvimento',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
+                            ),
+                            const Divider(height: 1),
+                            ListTile(
+                              leading: const Icon(
+                                Icons.security,
+                                color: Color(0xFF10B981),
+                              ),
+                              title: const Text('Autenticação em Dois Fatores'),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () {
+                                Get.snackbar(
+                                  'Em Desenvolvimento',
+                                  'Funcionalidade em desenvolvimento',
+                                  snackPosition: SnackPosition.BOTTOM,
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-
-              // Informações do perfil
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Informações Pessoais',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Card de informações
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            _buildProfileField(
-                              icon: Icons.person_outline,
-                              label: 'Nome',
-                              controller: controller.nomeController,
-                              enabled: controller.isEditing.value,
-                            ),
-                            const Divider(),
-                            _buildProfileField(
-                              icon: Icons.email_outlined,
-                              label: 'Email',
-                              value: controller.currentUser.value?.email ?? '',
-                              enabled: false,
-                            ),
-                            const Divider(),
-                            _buildProfileField(
-                              icon: Icons.phone_outlined,
-                              label: 'Telefone',
-                              controller: controller.telefoneController,
-                              enabled: controller.isEditing.value,
-                            ),
-                            const Divider(),
-                            _buildProfileField(
-                              icon: Icons.credit_card,
-                              label: 'CPF',
-                              controller: controller.cpfController,
-                              enabled: controller.isEditing.value,
-                            ),
-                            const Divider(),
-                            _buildProfileField(
-                              icon: Icons.badge,
-                              label: 'ID',
-                              value:
-                                  controller.currentUser.value?.id
-                                      ?.toString() ??
-                                  'N/A',
-                              enabled: false,
-                            ),
-                            const Divider(),
-                            _buildProfileField(
-                              icon: Icons.admin_panel_settings,
-                              label: 'Função',
-                              value:
-                                  controller.currentUser.value?.role ??
-                                  'Usuário',
-                              enabled: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Seção de segurança
-                    const Text(
-                      'Segurança',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: const Icon(
-                              Icons.lock_outline,
-                              color: Color(0xFF6366F1),
-                            ),
-                            title: const Text('Alterar Senha'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Get.snackbar(
-                                'Em Desenvolvimento',
-                                'Funcionalidade em desenvolvimento',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                            },
-                          ),
-                          const Divider(height: 1),
-                          ListTile(
-                            leading: const Icon(
-                              Icons.security,
-                              color: Color(0xFF10B981),
-                            ),
-                            title: const Text('Autenticação em Dois Fatores'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () {
-                              Get.snackbar(
-                                'Em Desenvolvimento',
-                                'Funcionalidade em desenvolvimento',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      }),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 

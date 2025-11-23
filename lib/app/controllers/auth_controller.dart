@@ -15,11 +15,11 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _checkAuthentication();
+    checkAuthentication();
   }
 
   // Verificar autenticação ao iniciar
-  Future<void> _checkAuthentication() async {
+  Future<void> checkAuthentication() async {
     try {
       final authenticated = await _authService.isAuthenticated();
       isAuthenticated.value = authenticated;

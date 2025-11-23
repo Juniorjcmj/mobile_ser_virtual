@@ -31,7 +31,7 @@ class LoginScreen extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
               child: Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(

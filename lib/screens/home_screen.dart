@@ -26,188 +26,139 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (homeController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: SafeArea(
+        child: Obx(() {
+          if (homeController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        return RefreshIndicator(
-          onRefresh: () => homeController.refreshData(),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header com gradiente
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF6366F1), Color(0xFF10B981)],
+          return RefreshIndicator(
+            onRefresh: () => homeController.refreshData(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header com gradiente
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF6366F1), Color(0xFF10B981)],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Bem-vindo,',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            homeController.currentUser.value?.nome ?? 'Usuário',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.email_outlined,
+                                color: Colors.white70,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                homeController.currentUser.value?.email ?? '',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+
+                  // Cards de funcionalidades
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Bem-vindo,',
-                          style: TextStyle(color: Colors.white70, fontSize: 16),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          homeController.currentUser.value?.nome ?? 'Usuário',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
+                          'Funcionalidades',
+                          style: TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
+                        const SizedBox(height: 16),
+
+                        // Grid de cards
+                        GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
                           children: [
-                            const Icon(
-                              Icons.email_outlined,
-                              color: Colors.white70,
-                              size: 16,
+                            _buildFeatureCard(
+                              icon: Icons.calendar_today,
+                              title: 'Agendamentos',
+                              color: const Color(0xFF6366F1),
+                              onTap: () => Get.toNamed(Routes.AGENDA),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              homeController.currentUser.value?.email ?? '',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
+                            _buildFeatureCard(
+                              icon: Icons.person,
+                              title: 'Perfil',
+                              color: const Color(0xFF10B981),
+                              onTap: () => Get.toNamed(Routes.PROFILE),
+                            ),
+                            _buildFeatureCard(
+                              icon: Icons.people_alt,
+                              title: 'Profissionais',
+                              color: const Color(0xFFF59E0B),
+                              onTap: () => Get.toNamed(Routes.DOCTORS),
+                            ),
+                            _buildFeatureCard(
+                              icon: Icons.people_outline,
+                              title: 'Pacientes',
+                              color: const Color(0xFFEC4899),
+                              onTap: () => Get.toNamed(Routes.PATIENTS),
+                            ),
+                            _buildFeatureCard(
+                              icon: Icons.settings,
+                              title: 'Configurações',
+                              color: const Color(0xFF8B5CF6),
+                              onTap: () => Get.toNamed(Routes.SETTINGS),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                ),
-
-                // Cards de funcionalidades
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Funcionalidades',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Grid de cards
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        children: [
-                          _buildFeatureCard(
-                            icon: Icons.calendar_today,
-                            title: 'Agendamentos',
-                            color: const Color(0xFF6366F1),
-                            onTap: () => Get.toNamed(Routes.AGENDA),
-                          ),
-                          _buildFeatureCard(
-                            icon: Icons.person,
-                            title: 'Perfil',
-                            color: const Color(0xFF10B981),
-                            onTap: () => Get.toNamed(Routes.PROFILE),
-                          ),
-                          _buildFeatureCard(
-                            icon: Icons.medical_services,
-                            title: 'Consultas',
-                            color: const Color(0xFFF59E0B),
-                            onTap: () {
-                              Get.snackbar(
-                                'Em Desenvolvimento',
-                                'Funcionalidade em desenvolvimento',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
-                            },
-                          ),
-                          _buildFeatureCard(
-                            icon: Icons.settings,
-                            title: 'Configurações',
-                            color: const Color(0xFF8B5CF6),
-                            onTap: () => Get.toNamed(Routes.SETTINGS),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Informações do usuário
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Informações da Conta',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1E293B),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildInfoRow(
-                                Icons.badge,
-                                'ID',
-                                homeController.currentUser.value?.id
-                                        ?.toString() ??
-                                    'N/A',
-                              ),
-                              const Divider(),
-                              _buildInfoRow(
-                                Icons.phone,
-                                'Telefone',
-                                homeController.currentUser.value?.telefone ??
-                                    'Não informado',
-                              ),
-                              const Divider(),
-                              _buildInfoRow(
-                                Icons.credit_card,
-                                'CPF',
-                                homeController.currentUser.value?.cpf ??
-                                    'Não informado',
-                              ),
-                              const Divider(),
-                              _buildInfoRow(
-                                Icons.admin_panel_settings,
-                                'Função',
-                                homeController.currentUser.value?.role ??
-                                    'Usuário',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
@@ -249,34 +200,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: const Color(0xFF64748B)),
-          const SizedBox(width: 12),
-          Text(
-            '$label:',
-            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
-              ),
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
       ),
     );
   }

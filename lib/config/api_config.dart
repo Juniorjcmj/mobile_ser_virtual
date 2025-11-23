@@ -7,6 +7,8 @@ class ApiConfig {
   static const String loginEndpoint = 'api/v1/auth/authenticate';
   static const String registerEndpoint = 'api/v1/auth/register';
   static const String consultasEndpoint = 'api/v1/api-consulta';
+  static const String doctorsEndpoint = 'api/v1/api-doctors';
+  static const String patientsEndpoint = 'api/v1/api-paciente/autocomplete';
 
   // Timeout para requisições
   static const Duration timeout = Duration(seconds: 30);

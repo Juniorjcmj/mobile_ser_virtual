@@ -7,6 +7,15 @@ import '../../screens/agenda_screen.dart';
 import '../../main.dart';
 import '../../services/consulta_service.dart';
 import '../controllers/agenda_controller.dart';
+import '../../screens/doctor_screen.dart';
+import '../../services/doctor_service.dart';
+import '../controllers/doctor_controller.dart';
+import '../../screens/doctor_detail_screen.dart';
+import '../controllers/doctor_detail_controller.dart';
+import '../../screens/patient_screen.dart';
+import '../../services/patient_service.dart';
+import '../../services/auth_service.dart';
+import '../controllers/patient_controller.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -44,6 +53,33 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut<ConsultaService>(() => ConsultaService());
         Get.lazyPut<AgendaController>(() => AgendaController());
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DOCTORS,
+      page: () => const DoctorScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DoctorService>(() => DoctorService());
+        Get.lazyPut<DoctorController>(() => DoctorController());
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.DOCTOR_DETAIL,
+      page: () => const DoctorDetailScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<DoctorDetailController>(() => DoctorDetailController());
+      }),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.PATIENTS,
+      page: () => const PatientScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<AuthService>(() => AuthService());
+        Get.lazyPut<PatientService>(() => PatientService());
+        Get.lazyPut<PatientController>(() => PatientController());
       }),
       transition: Transition.rightToLeft,
     ),
