@@ -20,6 +20,7 @@ class AuthService {
         ApiConfig.loginEndpoint,
         loginRequest.toJson(),
       );
+      print(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
