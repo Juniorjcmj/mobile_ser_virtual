@@ -1,56 +1,17 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:get/get.dart';
+import '../app/controllers/settings_controller.dart';
+import '../app/controllers/auth_controller.dart';
+import '../app/routes/app_routes.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  final AuthService _authService = AuthService();
-  bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
-  bool _biometricEnabled = false;
-
-  Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Logout'),
-        content: const Text('Deseja realmente sair?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true && mounted) {
-      await _authService.logout();
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/login',
-          (route) => false,
-        );
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.put(SettingsController());
+    final authController = Get.find<AuthController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Configurações'),
@@ -75,11 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.settings,
-                    size: 48,
-                    color: Colors.white,
-                  ),
+                  Icon(Icons.settings, size: 48, color: Colors.white),
                   SizedBox(height: 8),
                   Text(
                     'Configurações',
@@ -92,10 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   SizedBox(height: 4),
                   Text(
                     'Personalize seu aplicativo',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -126,56 +80,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Column(
                     children: [
-                      SwitchListTile(
-                        secondary: const Icon(
-                          Icons.notifications_outlined,
-                          color: Color(0xFF6366F1),
+                      Obx(
+                        () => SwitchListTile(
+                          secondary: const Icon(
+                            Icons.notifications_outlined,
+                            color: Color(0xFF6366F1),
+                          ),
+                          title: const Text('Notificações'),
+                          subtitle: const Text('Receber notificações do app'),
+                          value: controller.notificationsEnabled.value,
+                          activeColor: const Color(0xFF6366F1),
+                          onChanged: controller.toggleNotifications,
                         ),
-                        title: const Text('Notificações'),
-                        subtitle: const Text('Receber notificações do app'),
-                        value: _notificationsEnabled,
-                        activeColor: const Color(0xFF6366F1),
-                        onChanged: (value) {
-                          setState(() => _notificationsEnabled = value);
-                        },
                       ),
                       const Divider(height: 1),
-                      SwitchListTile(
-                        secondary: const Icon(
-                          Icons.dark_mode_outlined,
-                          color: Color(0xFF6366F1),
+                      Obx(
+                        () => SwitchListTile(
+                          secondary: const Icon(
+                            Icons.dark_mode_outlined,
+                            color: Color(0xFF6366F1),
+                          ),
+                          title: const Text('Modo Escuro'),
+                          subtitle: const Text('Ativar tema escuro'),
+                          value: controller.darkModeEnabled.value,
+                          activeColor: const Color(0xFF6366F1),
+                          onChanged: controller.toggleDarkMode,
                         ),
-                        title: const Text('Modo Escuro'),
-                        subtitle: const Text('Ativar tema escuro'),
-                        value: _darkModeEnabled,
-                        activeColor: const Color(0xFF6366F1),
-                        onChanged: (value) {
-                          setState(() => _darkModeEnabled = value);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
-                          );
-                        },
                       ),
                       const Divider(height: 1),
-                      SwitchListTile(
-                        secondary: const Icon(
-                          Icons.fingerprint,
-                          color: Color(0xFF6366F1),
+                      Obx(
+                        () => SwitchListTile(
+                          secondary: const Icon(
+                            Icons.fingerprint,
+                            color: Color(0xFF6366F1),
+                          ),
+                          title: const Text('Biometria'),
+                          subtitle: const Text('Login com biometria'),
+                          value: controller.biometricEnabled.value,
+                          activeColor: const Color(0xFF6366F1),
+                          onChanged: controller.toggleBiometric,
                         ),
-                        title: const Text('Biometria'),
-                        subtitle: const Text('Login com biometria'),
-                        value: _biometricEnabled,
-                        activeColor: const Color(0xFF6366F1),
-                        onChanged: (value) {
-                          setState(() => _biometricEnabled = value);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
-                          );
-                        },
                       ),
                     ],
                   ),
@@ -215,9 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         title: const Text('Editar Perfil'),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/profile');
-                        },
+                        onTap: () => Get.toNamed(Routes.PROFILE),
                       ),
                       const Divider(height: 1),
                       ListTile(
@@ -228,10 +170,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Alterar Senha'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
+                          Get.snackbar(
+                            'Em Desenvolvimento',
+                            'Funcionalidade em desenvolvimento',
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         },
                       ),
@@ -244,10 +186,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Privacidade'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
+                          Get.snackbar(
+                            'Em Desenvolvimento',
+                            'Funcionalidade em desenvolvimento',
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         },
                       ),
@@ -290,33 +232,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Sobre o App'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          showAboutDialog(
-                            context: context,
-                            applicationName: 'Sec Virtual',
-                            applicationVersion: '1.0.0',
-                            applicationIcon: Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF6366F1),
-                                    Color(0xFF10B981),
-                                  ],
+                          Get.dialog(
+                            AlertDialog(
+                              title: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF6366F1),
+                                          Color(0xFF10B981),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.medication_liquid,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text('Sec Virtual'),
+                                ],
+                              ),
+                              content: const Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Versão: 1.0.0'),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Aplicativo móvel para gerenciamento de consultas odontológicas.',
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Get.back(),
+                                  child: const Text('Fechar'),
                                 ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.medication_liquid,
-                                color: Colors.white,
-                                size: 32,
-                              ),
+                              ],
                             ),
-                            children: const [
-                              Text(
-                                'Aplicativo móvel para gerenciamento de consultas odontológicas.',
-                              ),
-                            ],
                           );
                         },
                       ),
@@ -329,10 +288,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Ajuda e Suporte'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
+                          Get.snackbar(
+                            'Em Desenvolvimento',
+                            'Funcionalidade em desenvolvimento',
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         },
                       ),
@@ -345,10 +304,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Termos de Uso'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Em desenvolvimento'),
-                            ),
+                          Get.snackbar(
+                            'Em Desenvolvimento',
+                            'Funcionalidade em desenvolvimento',
+                            snackPosition: SnackPosition.BOTTOM,
                           );
                         },
                       ),
@@ -371,10 +330,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
-                leading: const Icon(
-                  Icons.logout,
-                  color: Color(0xFFEF4444),
-                ),
+                leading: const Icon(Icons.logout, color: Color(0xFFEF4444)),
                 title: const Text(
                   'Sair',
                   style: TextStyle(
@@ -382,7 +338,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                onTap: _handleLogout,
+                onTap: () => authController.logout(),
               ),
             ),
           ),
@@ -393,10 +349,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Center(
             child: Text(
               'Versão 1.0.0',
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
             ),
           ),
           const SizedBox(height: 16),

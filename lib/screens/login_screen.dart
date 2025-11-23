@@ -1,92 +1,21 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import 'package:get/get.dart';
+import '../app/controllers/auth_controller.dart';
+import '../app/routes/app_routes.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _senhaController = TextEditingController();
-  final AuthService _authService = AuthService();
-  
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _senhaController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      await _authService.login(
-        _emailController.text.trim(),
-        _senhaController.text,
-      );
-
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
-      }
-    } catch (e) {
-      if (mounted) {
-        // Extrair mensagem de erro limpa
-        String errorMessage = e.toString().replaceAll('Exception: ', '');
-        
-        // Determinar cor e ícone baseado no tipo de erro
-        Color backgroundColor = Colors.red;
-        IconData icon = Icons.error_outline;
-        
-        if (errorMessage.contains('conexão') || errorMessage.contains('internet')) {
-          backgroundColor = Colors.orange;
-          icon = Icons.wifi_off;
-        } else if (errorMessage.contains('incorretos') || errorMessage.contains('não encontrado')) {
-          backgroundColor = Colors.red.shade700;
-          icon = Icons.lock_outline;
-        }
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(icon, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    errorMessage,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: backgroundColor,
-            duration: const Duration(seconds: 4),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Inicializar controller
+    final authController = Get.put(AuthController());
+
+    final formKey = GlobalKey<FormState>();
+    final emailController = TextEditingController();
+    final senhaController = TextEditingController();
+    final obscurePassword = true.obs;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -111,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(32.0),
                   child: Form(
-                    key: _formKey,
+                    key: formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        
+
                         // Title
                         const Text(
                           'Bem-vindo',
@@ -157,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         // Email Field
                         TextFormField(
-                          controller: _emailController,
+                          controller: emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: 'Email',
@@ -181,71 +110,88 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 16),
 
                         // Password Field
-                        TextFormField(
-                          controller: _senhaController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: 'Senha',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
+                        Obx(
+                          () => TextFormField(
+                            controller: senhaController,
+                            obscureText: obscurePassword.value,
+                            decoration: InputDecoration(
+                              labelText: 'Senha',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscurePassword.value
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: () {
+                                  obscurePassword.value =
+                                      !obscurePassword.value;
+                                },
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC),
                             ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xFFF8FAFC),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor, insira sua senha';
+                              }
+                              if (value.length < 6) {
+                                return 'A senha deve ter no mínimo 6 caracteres';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor, insira sua senha';
-                            }
-                            if (value.length < 6) {
-                              return 'A senha deve ter no mínimo 6 caracteres';
-                            }
-                            return null;
-                          },
                         ),
                         const SizedBox(height: 24),
 
                         // Login Button
-                        SizedBox(
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6366F1),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                        Obx(
+                          () => SizedBox(
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: authController.isLoading.value
+                                  ? null
+                                  : () async {
+                                      if (formKey.currentState!.validate()) {
+                                        final success = await authController
+                                            .login(
+                                              emailController.text.trim(),
+                                              senhaController.text,
+                                            );
+
+                                        if (success) {
+                                          Get.offAllNamed(Routes.HOME);
+                                        }
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6366F1),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
                               ),
-                              elevation: 2,
+                              child: authController.isLoading.value
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Entrar',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                             ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Entrar',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
                           ),
                         ),
                       ],

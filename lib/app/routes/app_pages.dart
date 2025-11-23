@@ -3,7 +3,10 @@ import '../../screens/login_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/settings_screen.dart';
+import '../../screens/agenda_screen.dart';
 import '../../main.dart';
+import '../../services/consulta_service.dart';
+import '../controllers/agenda_controller.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -33,6 +36,15 @@ class AppPages {
     GetPage(
       name: Routes.SETTINGS,
       page: () => const SettingsScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: Routes.AGENDA,
+      page: () => const AgendaScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ConsultaService>(() => ConsultaService());
+        Get.lazyPut<AgendaController>(() => AgendaController());
+      }),
       transition: Transition.rightToLeft,
     ),
   ];
