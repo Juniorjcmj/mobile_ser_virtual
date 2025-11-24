@@ -538,6 +538,24 @@ class AgendaScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
+                      onPressed: () {
+                        final controller = Get.find<AgendaController>();
+                        controller.confirmarAusencia(consulta);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFF59E0B),
+                        side: const BorderSide(color: Color(0xFFF59E0B)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Icon(Icons.person_off),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
                       onPressed: () => _showEditDialog(consulta),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF6366F1),

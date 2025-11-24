@@ -177,4 +177,44 @@ class ConsultaService {
       rethrow;
     }
   }
+
+  /// Confirmar ausência do paciente
+  Future<void> confirmarAusencia(String id) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado. Faça login novamente.');
+      }
+
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.consultasEndpoint}/confirmar-ausencia/$id',
+      );
+
+      print('🚫 Registrando ausência: $url');
+
+      final response = await http
+          .get(url, headers: ApiConfig.authHeaders(token))
+          .timeout(ApiConfig.timeout);
+
+      print('📊 Status da resposta: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Não autorizado. Faça login novamente.');
+      } else if (response.statusCode == 403) {
+        throw Exception('Sem permissão para registrar ausência.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Consulta não encontrada.');
+      } else {
+        throw Exception('Erro ao registrar ausência: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        throw Exception('Erro de conexão. Verifique sua internet');
+      }
+      rethrow;
+    }
+  }
 }

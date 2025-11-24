@@ -172,4 +172,39 @@ class AgendaController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  /// Confirmar ausência
+  Future<void> confirmarAusencia(Consulta consulta) async {
+    try {
+      if (consulta.id == null) return;
+
+      isLoading.value = true;
+      await _consultaService.confirmarAusencia(consulta.id!);
+
+      // Recarregar consultas para atualizar status
+      await loadConsultasDoMes(focusedDay.value);
+
+      Get.back(); // Fechar modal
+
+      Get.snackbar(
+        'Sucesso',
+        'Ausência registrada com sucesso',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        'Erro ao registrar ausência: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
