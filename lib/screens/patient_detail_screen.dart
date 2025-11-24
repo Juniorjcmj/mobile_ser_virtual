@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/patient.dart';
 import '../models/anamnese.dart';
 import '../services/anamnese_service.dart';
+import 'anamnese_form_screen.dart';
 import 'package:intl/intl.dart';
 
 class PatientDetailScreen extends StatefulWidget {
@@ -258,6 +259,37 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Botão Preencher Anamnese
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AnamneseFormScreen(
+                        patient: widget.patient,
+                        anamneseExistente: null,
+                      ),
+                    ),
+                  );
+                  if (result == true) {
+                    _loadAnamnese();
+                  }
+                },
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text('Preencher Anamnese'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6366F1),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
@@ -284,7 +316,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Este paciente ainda não possui anamnese cadastrada',
+                    'Clique no botão acima para preencher a anamnese',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
@@ -301,6 +333,38 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Botão Editar Anamnese
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AnamneseFormScreen(
+                      patient: widget.patient,
+                      anamneseExistente: _anamnese,
+                    ),
+                  ),
+                );
+                if (result == true) {
+                  _loadAnamnese();
+                }
+              },
+              icon: const Icon(Icons.edit, size: 20),
+              label: const Text('Editar Anamnese'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
           // Queixa Principal
           const Text(
             'Queixa principal',

@@ -25,6 +25,10 @@ dependencies:
   table_calendar: ^3.0.9
   intl: ^0.18.1
   url_launcher: ^6.2.1
+  
+  # PDF Generation
+  pdf: ^3.11.1
+  printing: ^5.13.2
 
 dev_dependencies:
   flutter_test:

@@ -36,4 +36,31 @@ class AnamneseService {
       rethrow;
     }
   }
+
+  /// Salva ou atualiza a anamnese de um paciente
+  Future<Anamnese> saveAnamnese(Anamnese anamnese) async {
+    try {
+      final token = await _authService.getToken();
+
+      if (token == null) {
+        throw Exception('Token de autenticação não encontrado');
+      }
+
+      final response = await _apiService.post(
+        ApiConfig.anamneseEndpoint,
+        anamnese.toJson(),
+        token: token,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return Anamnese.fromJson(data);
+      } else {
+        throw Exception('Erro ao salvar anamnese: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro em saveAnamnese: $e');
+      rethrow;
+    }
+  }
 }

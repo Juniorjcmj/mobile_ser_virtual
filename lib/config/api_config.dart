@@ -10,6 +10,7 @@ class ApiConfig {
   static const String doctorsEndpoint = 'api/v1/api-doctors';
   static const String patientsEndpoint = 'api/v1/api-paciente/autocomplete';
   static String patientByIdEndpoint(int id) => 'api/v1/api-paciente/$id';
+  static const String anamneseEndpoint = 'api/v1/anamnese';
   static String anamneseByPacienteIdEndpoint(int pacienteId) =>
       'api/v1/anamnese/paciente/$pacienteId';
 
