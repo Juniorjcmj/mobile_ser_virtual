@@ -4,6 +4,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../app/controllers/agenda_controller.dart';
 import '../models/consulta.dart';
+import '../models/patient.dart';
+import '../services/patient_service.dart';
+import '../screens/patient_detail_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AgendaScreen extends StatelessWidget {
@@ -291,7 +294,29 @@ class AgendaScreen extends StatelessWidget {
     );
   }
 
-  void _showConsultaDetails(Consulta consulta) {
+  void _showConsultaDetails(Consulta consulta) async {
+    final patientService = PatientService();
+    Patient? patient;
+
+    // Buscar dados do paciente se tivermos o ID
+    if (consulta.pacienteId != null && consulta.pacienteId!.isNotEmpty) {
+      try {
+        final pacienteIdInt = int.tryParse(consulta.pacienteId!);
+        if (pacienteIdInt != null) {
+          patient = await patientService.getPatientById(pacienteIdInt);
+        }
+      } catch (e) {
+        print('Erro ao buscar dados do paciente: $e');
+        // Continuar mesmo se houver erro
+      }
+    }
+
+    // Usar dados do paciente se disponíveis, senão usar dados da consulta
+    final convenio =
+        patient?.convenio ?? consulta.formaPagamento ?? 'Particular';
+    final carteirinha = patient?.carteirinha ?? consulta.numeroGuiaPlano;
+    final whatsappNumber = patient?.whatsapp ?? patient?.celular;
+
     Get.bottomSheet(
       Container(
         height: Get.height * 0.75,
@@ -327,7 +352,7 @@ class AgendaScreen extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                 child: Column(
                   children: [
                     _buildDetailRow(
@@ -337,11 +362,74 @@ class AgendaScreen extends StatelessWidget {
                       color: const Color(0xFF6366F1),
                     ),
                     const SizedBox(height: 16),
-                    _buildDetailRow(
-                      icon: Icons.person,
-                      label: 'Paciente',
-                      value: consulta.nomePaciente ?? 'Não informado',
-                      color: const Color(0xFF10B981),
+                    // Nome do paciente clicável
+                    GestureDetector(
+                      onTap: () {
+                        if (patient != null) {
+                          Get.to(() => PatientDetailScreen(patient: patient!));
+                        } else {
+                          Get.snackbar(
+                            'Aviso',
+                            'Dados do paciente não disponíveis',
+                            backgroundColor: Colors.orange,
+                            colorText: Colors.white,
+                          );
+                        }
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              color: Color(0xFF10B981),
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Paciente',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        consulta.nomePaciente ??
+                                            'Não informado',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Color(0xFF1E293B),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                     if (consulta.nomeDentista != null &&
@@ -400,19 +488,18 @@ class AgendaScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                consulta.formaPagamento ?? 'Particular',
+                                convenio,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   color: Color(0xFF1E293B),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (consulta.numeroGuiaPlano != null &&
-                                  consulta.numeroGuiaPlano!.isNotEmpty)
+                              if (carteirinha != null && carteirinha.isNotEmpty)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 2),
                                   child: Text(
-                                    'Cart. ${consulta.numeroGuiaPlano}',
+                                    'Cart. $carteirinha',
                                     style: const TextStyle(
                                       fontSize: 13,
                                       color: Color(0xFF64748B),
@@ -497,7 +584,7 @@ class AgendaScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _launchWhatsApp(consulta),
+                      onPressed: () => _launchWhatsApp(whatsappNumber),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF25D366),
                         foregroundColor: Colors.white,
@@ -637,12 +724,20 @@ class AgendaScreen extends StatelessWidget {
     );
   }
 
-  void _launchWhatsApp(Consulta consulta) async {
-    // TODO: Obter telefone real do paciente
-    // Como o modelo Consulta atual não tem telefone, usaremos um placeholder ou lógica futura
+  void _launchWhatsApp(String? phoneNumber) async {
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      Get.snackbar(
+        'Aviso',
+        'Número de WhatsApp não disponível',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
-    const phone = ''; // Número vazio abre o app
-    final url = Uri.parse('https://wa.me/$phone');
+    // Remover caracteres não numéricos
+    final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final url = Uri.parse('https://wa.me/$cleanPhone');
 
     try {
       if (await canLaunchUrl(url)) {

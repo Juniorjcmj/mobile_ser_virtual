@@ -62,18 +62,15 @@ class PatientService {
       }
 
       final response = await _apiService.get(
-        ApiConfig.patientsEndpoint,
+        ApiConfig.patientByIdEndpoint(id),
         token: token,
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        final patients = data.map((json) => Patient.fromJson(json)).toList();
-
-        return patients.firstWhere(
-          (patient) => patient.id == id,
-          orElse: () => throw Exception('Paciente não encontrado'),
-        );
+        final Map<String, dynamic> data = json.decode(response.body);
+        return Patient.fromJson(data);
+      } else if (response.statusCode == 404) {
+        return null;
       } else {
         throw Exception('Erro ao buscar paciente: ${response.statusCode}');
       }

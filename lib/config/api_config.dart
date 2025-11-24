@@ -9,6 +9,9 @@ class ApiConfig {
   static const String consultasEndpoint = 'api/v1/api-consulta';
   static const String doctorsEndpoint = 'api/v1/api-doctors';
   static const String patientsEndpoint = 'api/v1/api-paciente/autocomplete';
+  static String patientByIdEndpoint(int id) => 'api/v1/api-paciente/$id';
+  static String anamneseByPacienteIdEndpoint(int pacienteId) =>
+      'api/v1/anamnese/paciente/$pacienteId';
 
   // Timeout para requisições
   static const Duration timeout = Duration(seconds: 30);
