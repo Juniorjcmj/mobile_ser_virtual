@@ -1,31 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../app/controllers/home_controller.dart';
-import '../app/controllers/auth_controller.dart';
 import '../app/routes/app_routes.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        // Já está na home
+        break;
+      case 1:
+        Get.toNamed(Routes.AGENDA);
+        break;
+      case 2:
+        Get.toNamed(Routes.PATIENTS);
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final homeController = Get.put(HomeController());
-    final authController = Get.find<AuthController>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sec Virtual'),
-        backgroundColor: const Color(0xFF6366F1),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => authController.logout(),
-            tooltip: 'Sair',
-          ),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Obx(() {
           if (homeController.isLoading.value) {
@@ -36,169 +47,224 @@ class HomeScreen extends StatelessWidget {
             onRefresh: () => homeController.refreshData(),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header com gradiente
+                  // Header com logo
                   Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFF6366F1), Color(0xFF10B981)],
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Bem-vindo,',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            homeController.currentUser.value?.nome ?? 'Usuário',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.email_outlined,
-                                color: Colors.white70,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                homeController.currentUser.value?.email ?? '',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Cards de funcionalidades
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: const EdgeInsets.all(20),
+                    color: Colors.white,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Funcionalidades',
+                          'Clinsaúde',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            color: Color(0xFF6366F1),
                           ),
                         ),
-                        const SizedBox(height: 16),
-
-                        // Grid de cards
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          children: [
-                            _buildFeatureCard(
-                              icon: Icons.calendar_today,
-                              title: 'Agendamentos',
-                              color: const Color(0xFF6366F1),
-                              onTap: () => Get.toNamed(Routes.AGENDA),
-                            ),
-                            _buildFeatureCard(
-                              icon: Icons.person,
-                              title: 'Perfil',
-                              color: const Color(0xFF10B981),
-                              onTap: () => Get.toNamed(Routes.PROFILE),
-                            ),
-                            _buildFeatureCard(
-                              icon: Icons.people_alt,
-                              title: 'Profissionais',
-                              color: const Color(0xFFF59E0B),
-                              onTap: () => Get.toNamed(Routes.DOCTORS),
-                            ),
-                            _buildFeatureCard(
-                              icon: Icons.people_outline,
-                              title: 'Pacientes',
-                              color: const Color(0xFFEC4899),
-                              onTap: () => Get.toNamed(Routes.PATIENTS),
-                            ),
-                            _buildFeatureCard(
-                              icon: Icons.settings,
-                              title: 'Configurações',
-                              color: const Color(0xFF8B5CF6),
-                              onTap: () => Get.toNamed(Routes.SETTINGS),
-                            ),
-                          ],
+                        IconButton(
+                          icon: const Icon(Icons.notifications_outlined),
+                          color: const Color(0xFF64748B),
+                          onPressed: () {
+                            // TODO: Implementar notificações
+                          },
                         ),
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // Título "Choose your area"
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Escolha sua área',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Grid de opções
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      children: [
+                        _buildOptionCard(
+                          icon: Icons.calendar_today_outlined,
+                          label: 'Agenda',
+                          color: const Color(0xFF6366F1),
+                          isLarge: true,
+                          onTap: () => Get.toNamed(Routes.AGENDA),
+                        ),
+                        _buildOptionCard(
+                          icon: Icons.people_outline,
+                          label: 'Pacientes',
+                          color: const Color(0xFF6366F1),
+                          onTap: () => Get.toNamed(Routes.PATIENTS),
+                        ),
+                        _buildOptionCard(
+                          icon: Icons.person_outline,
+                          label: 'Profissionais',
+                          color: const Color(0xFF6366F1),
+                          onTap: () => Get.toNamed(Routes.DOCTORS),
+                        ),
+                        _buildOptionCard(
+                          icon: Icons.settings_outlined,
+                          label: 'Configurações',
+                          color: const Color(0xFF6366F1),
+                          onTap: () => Get.toNamed(Routes.SETTINGS),
+                        ),
+                        _buildOptionCard(
+                          icon: Icons.person,
+                          label: 'Perfil',
+                          color: const Color(0xFF6366F1),
+                          onTap: () => Get.toNamed(Routes.PROFILE),
+                        ),
+                        _buildOptionCard(
+                          icon: Icons.help_outline,
+                          label: 'Ajuda',
+                          color: const Color(0xFF6366F1),
+                          onTap: () {
+                            // TODO: Implementar ajuda
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
           );
         }),
       ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.white,
+            selectedItemColor: const Color(0xFF6366F1),
+            unselectedItemColor: const Color(0xFF94A3B8),
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            currentIndex: _selectedIndex,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_today_outlined),
+                activeIcon: Icon(Icons.calendar_today),
+                label: 'Agenda',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.people_outline),
+                activeIcon: Icon(Icons.people),
+                label: 'Pacientes',
+              ),
+            ],
+            onTap: _onItemTapped,
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildFeatureCard({
+  Widget _buildOptionCard({
     required IconData icon,
-    required String title,
+    required String label,
     required Color color,
     required VoidCallback onTap,
+    bool isLarge = false,
   }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 40, color: color),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: isLarge
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [color, color.withOpacity(0.8)],
+                )
+              : null,
+          color: isLarge ? null : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: isLarge
+              ? null
+              : Border.all(color: const Color(0xFFE2E8F0), width: 1),
+          boxShadow: isLarge
+              ? [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isLarge
+                    ? Colors.white.withOpacity(0.2)
+                    : color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
-                ),
-                textAlign: TextAlign.center,
+              child: Icon(
+                icon,
+                size: isLarge ? 40 : 32,
+                color: isLarge ? Colors.white : color,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isLarge ? Colors.white : const Color(0xFF64748B),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

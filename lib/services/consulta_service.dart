@@ -87,4 +87,94 @@ class ConsultaService {
     final fim = DateTime(mes.year, mes.month + 1, 0, 23, 59, 59);
     return await getPorPeriodo(inicio, fim);
   }
+
+  /// Cancelar uma consulta
+  Future<void> cancelarConsulta(String id) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado. Faça login novamente.');
+      }
+
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.consultasEndpoint}/$id',
+      );
+
+      print('🗑️ Cancelando consulta: $url');
+
+      final response = await http
+          .delete(url, headers: ApiConfig.authHeaders(token))
+          .timeout(ApiConfig.timeout);
+
+      print('📊 Status da resposta: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return;
+      } else if (response.statusCode == 401) {
+        throw Exception('Não autorizado. Faça login novamente.');
+      } else if (response.statusCode == 403) {
+        throw Exception('Sem permissão para cancelar esta consulta.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Consulta não encontrada.');
+      } else {
+        throw Exception('Erro ao cancelar consulta: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        throw Exception('Erro de conexão. Verifique sua internet');
+      }
+      rethrow;
+    }
+  }
+
+  /// Atualizar uma consulta
+  Future<Consulta> atualizarConsulta(Consulta consulta) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado. Faça login novamente.');
+      }
+
+      if (consulta.id == null) {
+        throw Exception('ID da consulta inválido.');
+      }
+
+      final url = Uri.parse(
+        '${ApiConfig.baseUrl}${ApiConfig.consultasEndpoint}/${consulta.id}',
+      );
+
+      print('📝 Atualizando consulta: $url');
+      print('📦 Dados: ${jsonEncode(consulta.toJson())}');
+
+      final response = await http
+          .put(
+            url,
+            headers: ApiConfig.authHeaders(token),
+            body: jsonEncode(consulta.toJson()),
+          )
+          .timeout(ApiConfig.timeout);
+
+      print('📊 Status da resposta: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Consulta.fromJson(data);
+      } else if (response.statusCode == 401) {
+        throw Exception('Não autorizado. Faça login novamente.');
+      } else if (response.statusCode == 403) {
+        throw Exception('Sem permissão para atualizar esta consulta.');
+      } else if (response.statusCode == 404) {
+        throw Exception('Consulta não encontrada.');
+      } else {
+        throw Exception('Erro ao atualizar consulta: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException')) {
+        throw Exception('Erro de conexão. Verifique sua internet');
+      }
+      rethrow;
+    }
+  }
 }

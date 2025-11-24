@@ -97,4 +97,79 @@ class AgendaController extends GetxController {
   bool diaTemConsultas(DateTime dia) {
     return consultasDoMes.any((consulta) => consulta.isOnDay(dia));
   }
+
+  /// Cancelar uma consulta
+  Future<void> cancelarConsulta(Consulta consulta) async {
+    try {
+      if (consulta.id == null) return;
+
+      isLoading.value = true;
+      await _consultaService.cancelarConsulta(consulta.id!);
+
+      // Remover da lista local para atualizar UI instantaneamente
+      consultasDoMes.removeWhere((c) => c.id == consulta.id);
+      _updateConsultasDoDia();
+
+      Get.back(); // Fechar modal se estiver aberto
+
+      Get.snackbar(
+        'Sucesso',
+        'Consulta cancelada com sucesso',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        'Erro ao cancelar consulta: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Atualizar uma consulta
+  Future<void> atualizarConsulta(Consulta consulta) async {
+    try {
+      isLoading.value = true;
+      final updatedConsulta = await _consultaService.atualizarConsulta(
+        consulta,
+      );
+
+      // Atualizar na lista local
+      final index = consultasDoMes.indexWhere((c) => c.id == consulta.id);
+      if (index != -1) {
+        consultasDoMes[index] = updatedConsulta;
+      }
+      _updateConsultasDoDia();
+
+      Get.back(); // Fechar modal
+
+      Get.snackbar(
+        'Sucesso',
+        'Consulta atualizada com sucesso',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF10B981),
+        colorText: Colors.white,
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        'Erro ao atualizar consulta: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFEF4444),
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

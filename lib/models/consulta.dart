@@ -45,6 +45,52 @@ class Consulta {
     this.participacao,
   });
 
+  Consulta copyWith({
+    String? id,
+    DateTime? start,
+    DateTime? end,
+    String? valor,
+    String? tipo,
+    String? confirmado,
+    String? ausencia,
+    String? observacao,
+    String? numeroGuiaPlano,
+    String? pacienteId,
+    String? nomePaciente,
+    String? nomeDentista,
+    String? dentistaId,
+    DateTime? dataCriacao,
+    DateTime? dataAtualizacao,
+    String? status,
+    String? formaPagamento,
+    String? corPaciente,
+    String? corDentista,
+    String? participacao,
+  }) {
+    return Consulta(
+      id: id ?? this.id,
+      start: start ?? this.start,
+      end: end ?? this.end,
+      valor: valor ?? this.valor,
+      tipo: tipo ?? this.tipo,
+      confirmado: confirmado ?? this.confirmado,
+      ausencia: ausencia ?? this.ausencia,
+      observacao: observacao ?? this.observacao,
+      numeroGuiaPlano: numeroGuiaPlano ?? this.numeroGuiaPlano,
+      pacienteId: pacienteId ?? this.pacienteId,
+      nomePaciente: nomePaciente ?? this.nomePaciente,
+      nomeDentista: nomeDentista ?? this.nomeDentista,
+      dentistaId: dentistaId ?? this.dentistaId,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+      dataAtualizacao: dataAtualizacao ?? this.dataAtualizacao,
+      status: status ?? this.status,
+      formaPagamento: formaPagamento ?? this.formaPagamento,
+      corPaciente: corPaciente ?? this.corPaciente,
+      corDentista: corDentista ?? this.corDentista,
+      participacao: participacao ?? this.participacao,
+    );
+  }
+
   factory Consulta.fromJson(Map<String, dynamic> json) {
     return Consulta(
       id: json['id'],

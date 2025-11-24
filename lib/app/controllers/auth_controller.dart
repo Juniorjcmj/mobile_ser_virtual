@@ -120,41 +120,30 @@ class AuthController extends GetxController {
   // Logout
   Future<void> logout() async {
     try {
-      final confirmed = await Get.dialog<bool>(
-        AlertDialog(
-          title: const Text('Confirmar Logout'),
-          content: const Text('Deseja realmente sair?'),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(result: false),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () => Get.back(result: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Sair'),
-            ),
-          ],
-        ),
+      await Get.defaultDialog(
+        title: 'Confirmar Logout',
+        middleText: 'Deseja realmente sair?',
+        textCancel: 'Cancelar',
+        textConfirm: 'Sair',
+        confirmTextColor: Colors.white,
+        buttonColor: const Color(0xFFEF4444),
+        onConfirm: () async {
+          Get.back(); // Fecha o diálogo
+
+          await _authService.logout();
+          isAuthenticated.value = false;
+          currentUser.value = null;
+
+          Get.offAllNamed(Routes.LOGIN);
+
+          Get.snackbar(
+            'Logout',
+            'Você saiu da sua conta',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        },
       );
-
-      if (confirmed == true) {
-        await _authService.logout();
-        isAuthenticated.value = false;
-        currentUser.value = null;
-
-        Get.offAllNamed(Routes.LOGIN);
-
-        Get.snackbar(
-          'Logout',
-          'Você saiu da sua conta',
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 2),
-        );
-      }
     } catch (e) {
       Get.snackbar(
         'Erro',
